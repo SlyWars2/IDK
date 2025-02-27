@@ -3,44 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rohin Gangal's Website</title>
+    <title>Texas Hold'em Poker</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            background-color: green;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .table {
+            width: 800px;
+            height: 400px;
+            background-color: darkgreen;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 20px black;
+        }
+        .player {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            background-color: white;
             text-align: center;
-            margin: 50px;
+            padding: 5px;
+            border-radius: 10px;
         }
-        .game-container {
-            margin-top: 20px;
+        .player1 { top: 10px; left: 350px; }
+        .player2 { bottom: 10px; left: 350px; }
+        .community-cards {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
         }
-        button {
-            font-size: 18px;
-            padding: 10px;
-            cursor: pointer;
+        .card {
+            width: 50px;
+            height: 75px;
+            background-color: white;
+            margin: 5px;
+            text-align: center;
+            line-height: 75px;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 2px 2px 5px black;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to Rohin Gangal's Personal Website</h1>
-    <p>Enjoy a fun Texas Hold 'Em game below!</p>
-    
-    <div class="game-container">
-        <h2>Texas Hold 'Em</h2>
-        <p>Each player starts with $100. Click the button to start the game.</p>
-        <button onclick="startGame()">Start Game</button>
-        <p id="game-status"></p>
+    <div class="table">
+        <div class="player player1">Player 1: $100</div>
+        <div class="player player2">Player 2: $100</div>
+        <div class="community-cards">
+            <div class="card">?</div>
+            <div class="card">?</div>
+            <div class="card">?</div>
+            <div class="card">?</div>
+            <div class="card">?</div>
+        </div>
     </div>
-
-    <script>
-        let players = [
-            { name: "Player 1", money: 100 },
-            { name: "Player 2", money: 100 }
-        ];
-
-        function startGame() {
-            document.getElementById("game-status").innerText = `Game started! ${players[0].name} and ${players[1].name} each have $100.`;
-        }
-    </script>
 </body>
 </html>
+
 
