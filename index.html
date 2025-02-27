@@ -3,137 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackjack Table</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: green; color: white; }
-        #game-container { max-width: 800px; margin: auto; padding: 20px; border: 2px solid white; border-radius: 10px; }
-        .player { margin: 10px; padding: 10px; border: 1px solid white; border-radius: 5px; }
-        .dealer { font-weight: bold; }
-        .buttons { margin-top: 10px; }
-    </style>
+    <title>Cookie Clicker Clone</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Blackjack Table</h1>
-    <div id="game-container">
-        <div id="dealer" class="player dealer">Dealer: <span id="dealer-score">0</span></div>
-        <div id="players"></div>
-        <h3>Bet Amount: $<span id="bet-amount">0</span></h3>
-        <input type="number" id="bet-input" placeholder="Enter bet amount" min="1">
-        <button onclick="placeBet()">Place Bet</button>
-        <div class="buttons">
-            <button onclick="startGame()">Start Game</button>
-            <button onclick="hit()">Hit</button>
-            <button onclick="stand()">Stand</button>
+    <div id="game">
+        <h1>Cookie Clicker</h1>
+        <div id="cookie" onclick="clickCookie()">
+            <img src="cookie.png" alt="cookie" width="150" height="150">
         </div>
-        <h3>Leaderboard</h3>
-        <ul id="leaderboard"></ul>
+        <p>You have <span id="cookieCount">0</span> cookies.</p>
+
+        <div id="shop">
+            <button id="upgradeButton" onclick="buyUpgrade()">Buy Auto-Clicker (Cost: <span id="upgradeCost">10</span> cookies)</button>
+            <p id="upgradeDescription">Auto-clicker will click the cookie for you.</p>
+        </div>
     </div>
-    
-    <script>
-        let players = [
-            { name: "You", score: 0, money: 1000, bet: 0, isAI: false },
-            { name: "AI Player 1", score: 0, money: 1000, bet: 0, isAI: true },
-            { name: "AI Player 2", score: 0, money: 1000, bet: 0, isAI: true }
-        ];
-        let dealer = { score: 0 };
-        let deck = [];
 
-        function createDeck() {
-            let suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
-            let values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
-            deck = [];
-            for (let suit of suits) {
-                for (let value of values) {
-                    deck.push({ suit, value });
-                }
-            }
-            deck = deck.sort(() => Math.random() - 0.5);
-        }
-
-        function drawCard() {
-            return deck.pop();
-        }
-
-        function calculateScore(hand) {
-            let score = 0;
-            let aces = 0;
-            for (let card of hand) {
-                if (["J", "Q", "K"].includes(card.value)) {
-                    score += 10;
-                } else if (card.value === "A") {
-                    aces += 1;
-                    score += 11;
-                } else {
-                    score += parseInt(card.value);
-                }
-            }
-            while (score > 21 && aces > 0) {
-                score -= 10;
-                aces -= 1;
-            }
-            return score;
-        }
-
-        function startGame() {
-            createDeck();
-            players.forEach(player => player.hand = [drawCard(), drawCard()]);
-            dealer.hand = [drawCard(), drawCard()];
-            updateUI();
-        }
-
-        function hit() {
-            players[0].hand.push(drawCard());
-            if (calculateScore(players[0].hand) > 21) {
-                alert("Busted!");
-            }
-            updateUI();
-        }
-
-        function stand() {
-            while (calculateScore(dealer.hand) < 17) {
-                dealer.hand.push(drawCard());
-            }
-            determineWinner();
-            updateUI();
-        }
-
-        function placeBet() {
-            let betInput = document.getElementById("bet-input").value;
-            let betAmount = parseInt(betInput);
-            if (betAmount > 0 && betAmount <= players[0].money) {
-                players[0].bet = betAmount;
-                players[0].money -= betAmount;
-                document.getElementById("bet-amount").innerText = betAmount;
-                updateUI();
-            } else {
-                alert("Invalid bet amount.");
-            }
-        }
-
-        function determineWinner() {
-            let playerScore = calculateScore(players[0].hand);
-            let dealerScore = calculateScore(dealer.hand);
-            if (playerScore > 21 || (dealerScore <= 21 && dealerScore >= playerScore)) {
-                alert("Dealer Wins!");
-            } else {
-                alert("You Win!");
-                players[0].money += players[0].bet * 2;
-            }
-            players[0].bet = 0;
-        }
-
-        function updateUI() {
-            document.getElementById("dealer-score").innerText = calculateScore(dealer.hand);
-            let playersDiv = document.getElementById("players");
-            playersDiv.innerHTML = "";
-            players.forEach(player => {
-                let div = document.createElement("div");
-                div.className = "player";
-                div.innerText = `${player.name}: ${calculateScore(player.hand)} | Money: $${player.money} | Bet: $${player.bet}`;
-                playersDiv.appendChild(div);
-            });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
-
