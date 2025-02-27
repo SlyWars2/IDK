@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rohin Gangal's Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .game-container {
+            margin-top: 20px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Rohin Gangal's Personal Website</h1>
+    <p>Enjoy a fun money-themed game below!</p>
+    
+    <div class="game-container">
+        <h2>Money Flip Game</h2>
+        <p>Click the button to flip a coin. If it's heads, you win $10!</p>
+        <button onclick="flipCoin()">Flip Coin</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        function flipCoin() {
+            let outcome = Math.random() < 0.5 ? 'Heads! You win $10!' : 'Tails! Try again!';
+            document.getElementById("result").innerText = outcome;
+        }
+    </script>
+</body>
+</html>
 
