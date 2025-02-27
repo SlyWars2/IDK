@@ -3,128 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Casino</title>
+    <title>Blackjack Table</title>
     <style>
-        body {
-            background-color: darkgreen;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .casino {
-            width: 1000px;
-            margin: auto;
-            background-color: black;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px white;
-        }
-        .games {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-        .game {
-            width: 450px;
-            background-color: darkred;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px white;
-        }
-        .table {
-            background-color: green;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-        .card {
-            display: inline-block;
-            width: 50px;
-            height: 75px;
-            background-color: white;
-            color: black;
-            text-align: center;
-            line-height: 75px;
-            margin: 5px;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-        .controls {
-            margin-top: 15px;
-        }
-        button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: green; color: white; }
+        #game-container { max-width: 800px; margin: auto; padding: 20px; border: 2px solid white; border-radius: 10px; }
+        .player { margin: 10px; padding: 10px; border: 1px solid white; border-radius: 5px; }
+        .dealer { font-weight: bold; }
+        .buttons { margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="casino">
-        <h1>Welcome to the Virtual Casino</h1>
-        <p>Each player starts with <strong>1000 coins</strong>. Try to win more by playing!</p>
-        <div class="games">
-            <div class="game" id="blackjack">
-                <h2>Blackjack</h2>
-                <p>Player Coins: <span id="bj-coins">1000</span></p>
-                <div class="table" id="bj-table"></div>
-                <div class="controls">
-                    <button onclick="startBlackjack()">Start Game</button>
-                    <button onclick="hit()">Hit</button>
-                    <button onclick="stand()">Stand</button>
-                </div>
-                <p id="bj-result"></p>
-            </div>
-            <div class="game" id="poker">
-                <h2>Texas Hold'em Poker</h2>
-                <p>Player Coins: <span id="poker-coins">1000</span></p>
-                <div class="table" id="poker-table"></div>
-                <div class="controls">
-                    <button onclick="startPoker()">Start Game</button>
-                    <button onclick="bet()">Bet</button>
-                    <button onclick="fold()">Fold</button>
-                </div>
-                <p id="poker-result"></p>
-            </div>
+    <h1>Blackjack Table</h1>
+    <div id="game-container">
+        <div id="dealer" class="player dealer">Dealer: <span id="dealer-score">0</span></div>
+        <div id="players"></div>
+        <div class="buttons">
+            <button onclick="startGame()">Start Game</button>
+            <button onclick="hit()">Hit</button>
+            <button onclick="stand()">Stand</button>
         </div>
+        <h3>Bet Amount: $<span id="bet-amount">0</span></h3>
+        <input type="number" id="bet-input" placeholder="Enter bet amount" min="1">
+        <button onclick="placeBet()">Place Bet</button>
+        <h3>Leaderboard</h3>
+        <ul id="leaderboard"></ul>
     </div>
-
+    
     <script>
-        let playerCoins = 1000;
-        let bjCoins = 1000;
-        let pokerCoins = 1000;
-
-        function createDeck() {
-            let suits = ['♠', '♥', '♦', '♣'];
-            let values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-            let deck = [];
-            for (let suit of suits) {
-                for (let value of values) {
-                    deck.push({ value, suit });
-                }
+        let players = [
+            { name: "You", score: 0, money: 1000, bet: 0, isAI: false },
+            { name: "AI Player 1", score: 0, money: 1000, bet: 0, isAI: true },
+            { name: "AI Player 2", score: 0, money: 1000, bet: 0, isAI: true }
+        ];
+        let dealer = { score: 0 };
+        
+        function startGame() {
+            players.forEach(player => player.score = Math.floor(Math.random() * 21) + 1);
+            dealer.score = Math.floor(Math.random() * 21) + 1;
+            updateUI();
+        }
+        
+        function hit() {
+            players[0].score += Math.floor(Math.random() * 10) + 1;
+            if (players[0].score > 21) alert("Busted!");
+            updateUI();
+        }
+        
+        function stand() {
+            alert("You chose to stand.");
+            updateUI();
+        }
+        
+        function placeBet() {
+            let betInput = document.getElementById("bet-input").value;
+            let betAmount = parseInt(betInput);
+            if (betAmount > 0 && betAmount <= players[0].money) {
+                players[0].bet = betAmount;
+                players[0].money -= betAmount;
+                document.getElementById("bet-amount").innerText = betAmount;
+                updateUI();
+            } else {
+                alert("Invalid bet amount.");
             }
-            return deck.sort(() => Math.random() - 0.5);
         }
-
-        function startBlackjack() {
-            let deck = createDeck();
-            let playerHand = [deck.pop(), deck.pop()];
-            let dealerHand = [deck.pop(), deck.pop()];
-            let bjTable = document.getElementById('bj-table');
-            bjTable.innerHTML = `Your Hand: ${displayCards(playerHand)}<br> Dealer's Hand: ${displayCards([dealerHand[0], '?'])}`;
-        }
-
-        function displayCards(hand) {
-            return hand.map(card => `<div class="card">${card.value}${card.suit}</div>`).join('');
-        }
-
-        function startPoker() {
-            let deck = createDeck();
-            let playerHand = [deck.pop(), deck.pop()];
-            let communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
-            let pokerTable = document.getElementById('poker-table');
-            pokerTable.innerHTML = `Your Hand: ${displayCards(playerHand)}<br> Community Cards: ${displayCards(communityCards)}`;
+        
+        function updateUI() {
+            document.getElementById("dealer-score").innerText = dealer.score;
+            let playersDiv = document.getElementById("players");
+            playersDiv.innerHTML = "";
+            players.forEach(player => {
+                let div = document.createElement("div");
+                div.className = "player";
+                div.innerText = `${player.name}: ${player.score} | Money: $${player.money} | Bet: $${player.bet}`;
+                playersDiv.appendChild(div);
+            });
         }
     </script>
 </body>
