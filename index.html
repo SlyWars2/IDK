@@ -3,57 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Texas Hold'em Poker</title>
+    <title>Virtual Casino</title>
     <style>
         body {
-            background-color: green;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .table {
-            width: 800px;
-            height: 400px;
             background-color: darkgreen;
-            border-radius: 50%;
-            position: relative;
-            box-shadow: 0 0 20px black;
-        }
-        .player {
-            position: absolute;
-            width: 120px;
-            height: 60px;
-            background-color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 10px;
-        }
-        .player1 { top: 10px; left: 350px; }
-        .player2 { bottom: 10px; left: 350px; }
-        .community-cards {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            font-family: Arial, sans-serif;
         }
-        .card {
-            width: 50px;
-            height: 75px;
-            background-color: white;
-            margin: 5px;
+        .casino {
+            width: 900px;
+            background-color: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px white;
             text-align: center;
-            line-height: 75px;
-            border-radius: 5px;
-            font-weight: bold;
-            box-shadow: 2px 2px 5px black;
+        }
+        .games {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .game {
+            width: 400px;
+            background-color: darkred;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px white;
         }
         .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            margin-top: 15px;
         }
         button {
             padding: 10px;
@@ -64,60 +47,67 @@
     </style>
 </head>
 <body>
-    <div class="table">
-        <div class="player player1">Player 1: $100</div>
-        <div class="player player2">Player 2: $100</div>
-        <div class="community-cards">
-            <div class="card">?</div>
-            <div class="card">?</div>
-            <div class="card">?</div>
-            <div class="card">?</div>
-            <div class="card">?</div>
-        </div>
-        <div class="controls">
-            <button onclick="dealCards()">Deal Cards</button>
-            <button onclick="bet()">Bet</button>
-            <button onclick="fold()">Fold</button>
+    <div class="casino">
+        <h1>Welcome to the Virtual Casino</h1>
+        <p>Each player starts with <strong>1000 coins</strong>. Try to win more by playing!</p>
+        <div class="games">
+            <div class="game" id="blackjack">
+                <h2>Blackjack</h2>
+                <p>Player Coins: <span id="bj-coins">1000</span></p>
+                <div class="controls">
+                    <button onclick="startBlackjack()">Play Blackjack</button>
+                </div>
+                <p id="bj-result"></p>
+            </div>
+            <div class="game" id="poker">
+                <h2>Texas Hold'em Poker</h2>
+                <p>Player Coins: <span id="poker-coins">1000</span></p>
+                <div class="controls">
+                    <button onclick="startPoker()">Play Poker</button>
+                </div>
+                <p id="poker-result"></p>
+            </div>
         </div>
     </div>
+
     <script>
-        let deck = [];
-        let player1Balance = 100;
-        let player2Balance = 100;
+        let playerCoins = 1000;
+        let bjCoins = 1000;
+        let pokerCoins = 1000;
 
-        function initializeDeck() {
-            let suits = ['♠', '♥', '♦', '♣'];
-            let values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-            deck = [];
-            for (let suit of suits) {
-                for (let value of values) {
-                    deck.push(value + suit);
-                }
+        function startBlackjack() {
+            let bet = 100;
+            if (bjCoins < bet) {
+                document.getElementById('bj-result').innerText = "Not enough coins!";
+                return;
             }
-            deck.sort(() => Math.random() - 0.5);
+            bjCoins -= bet;
+            let playerScore = Math.floor(Math.random() * 11) + 16;
+            let dealerScore = Math.floor(Math.random() * 11) + 17;
+            if (playerScore > 21 || dealerScore > playerScore) {
+                document.getElementById('bj-result').innerText = "You lost! Dealer wins.";
+            } else {
+                bjCoins += bet * 2;
+                document.getElementById('bj-result').innerText = "You won!";
+            }
+            document.getElementById('bj-coins').innerText = bjCoins;
         }
 
-        function dealCards() {
-            initializeDeck();
-            let communityCards = document.querySelectorAll('.community-cards .card');
-            for (let i = 0; i < communityCards.length; i++) {
-                communityCards[i].textContent = deck[i];
+        function startPoker() {
+            let bet = 100;
+            if (pokerCoins < bet) {
+                document.getElementById('poker-result').innerText = "Not enough coins!";
+                return;
             }
-        }
-
-        function bet() {
-            if (player1Balance >= 10) {
-                player1Balance -= 10;
-                document.querySelector('.player1').textContent = `Player 1: $${player1Balance}`;
+            pokerCoins -= bet;
+            let outcome = Math.random();
+            if (outcome > 0.5) {
+                pokerCoins += bet * 2;
+                document.getElementById('poker-result').innerText = "You won!";
+            } else {
+                document.getElementById('poker-result').innerText = "You lost!";
             }
-            if (player2Balance >= 10) {
-                player2Balance -= 10;
-                document.querySelector('.player2').textContent = `Player 2: $${player2Balance}`;
-            }
-        }
-
-        function fold() {
-            alert('Player has folded. Round over.');
+            document.getElementById('poker-coins').innerText = pokerCoins;
         }
     </script>
 </body>
