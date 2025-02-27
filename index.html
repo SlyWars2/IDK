@@ -22,11 +22,11 @@
         }
         .player {
             position: absolute;
-            width: 100px;
-            height: 50px;
+            width: 120px;
+            height: 60px;
             background-color: white;
             text-align: center;
-            padding: 5px;
+            padding: 10px;
             border-radius: 10px;
         }
         .player1 { top: 10px; left: 350px; }
@@ -49,6 +49,18 @@
             font-weight: bold;
             box-shadow: 2px 2px 5px black;
         }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -62,8 +74,51 @@
             <div class="card">?</div>
             <div class="card">?</div>
         </div>
+        <div class="controls">
+            <button onclick="dealCards()">Deal Cards</button>
+            <button onclick="bet()">Bet</button>
+            <button onclick="fold()">Fold</button>
+        </div>
     </div>
+    <script>
+        let deck = [];
+        let player1Balance = 100;
+        let player2Balance = 100;
+
+        function initializeDeck() {
+            let suits = ['♠', '♥', '♦', '♣'];
+            let values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push(value + suit);
+                }
+            }
+            deck.sort(() => Math.random() - 0.5);
+        }
+
+        function dealCards() {
+            initializeDeck();
+            let communityCards = document.querySelectorAll('.community-cards .card');
+            for (let i = 0; i < communityCards.length; i++) {
+                communityCards[i].textContent = deck[i];
+            }
+        }
+
+        function bet() {
+            if (player1Balance >= 10) {
+                player1Balance -= 10;
+                document.querySelector('.player1').textContent = `Player 1: $${player1Balance}`;
+            }
+            if (player2Balance >= 10) {
+                player2Balance -= 10;
+                document.querySelector('.player2').textContent = `Player 2: $${player2Balance}`;
+            }
+        }
+
+        function fold() {
+            alert('Player has folded. Round over.');
+        }
+    </script>
 </body>
 </html>
-
-
