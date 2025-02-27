@@ -7,21 +7,17 @@
     <style>
         body {
             background-color: darkgreen;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             color: white;
             font-family: Arial, sans-serif;
+            text-align: center;
         }
         .casino {
-            width: 900px;
+            width: 1000px;
+            margin: auto;
             background-color: black;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 20px white;
-            text-align: center;
         }
         .games {
             display: flex;
@@ -29,11 +25,29 @@
             margin-top: 20px;
         }
         .game {
-            width: 400px;
+            width: 450px;
             background-color: darkred;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 0 10px white;
+        }
+        .table {
+            background-color: green;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .card {
+            display: inline-block;
+            width: 50px;
+            height: 75px;
+            background-color: white;
+            color: black;
+            text-align: center;
+            line-height: 75px;
+            margin: 5px;
+            font-weight: bold;
+            border-radius: 5px;
         }
         .controls {
             margin-top: 15px;
@@ -54,16 +68,22 @@
             <div class="game" id="blackjack">
                 <h2>Blackjack</h2>
                 <p>Player Coins: <span id="bj-coins">1000</span></p>
+                <div class="table" id="bj-table"></div>
                 <div class="controls">
-                    <button onclick="startBlackjack()">Play Blackjack</button>
+                    <button onclick="startBlackjack()">Start Game</button>
+                    <button onclick="hit()">Hit</button>
+                    <button onclick="stand()">Stand</button>
                 </div>
                 <p id="bj-result"></p>
             </div>
             <div class="game" id="poker">
                 <h2>Texas Hold'em Poker</h2>
                 <p>Player Coins: <span id="poker-coins">1000</span></p>
+                <div class="table" id="poker-table"></div>
                 <div class="controls">
-                    <button onclick="startPoker()">Play Poker</button>
+                    <button onclick="startPoker()">Start Game</button>
+                    <button onclick="bet()">Bet</button>
+                    <button onclick="fold()">Fold</button>
                 </div>
                 <p id="poker-result"></p>
             </div>
@@ -75,39 +95,36 @@
         let bjCoins = 1000;
         let pokerCoins = 1000;
 
+        function createDeck() {
+            let suits = ['♠', '♥', '♦', '♣'];
+            let values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            let deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ value, suit });
+                }
+            }
+            return deck.sort(() => Math.random() - 0.5);
+        }
+
         function startBlackjack() {
-            let bet = 100;
-            if (bjCoins < bet) {
-                document.getElementById('bj-result').innerText = "Not enough coins!";
-                return;
-            }
-            bjCoins -= bet;
-            let playerScore = Math.floor(Math.random() * 11) + 16;
-            let dealerScore = Math.floor(Math.random() * 11) + 17;
-            if (playerScore > 21 || dealerScore > playerScore) {
-                document.getElementById('bj-result').innerText = "You lost! Dealer wins.";
-            } else {
-                bjCoins += bet * 2;
-                document.getElementById('bj-result').innerText = "You won!";
-            }
-            document.getElementById('bj-coins').innerText = bjCoins;
+            let deck = createDeck();
+            let playerHand = [deck.pop(), deck.pop()];
+            let dealerHand = [deck.pop(), deck.pop()];
+            let bjTable = document.getElementById('bj-table');
+            bjTable.innerHTML = `Your Hand: ${displayCards(playerHand)}<br> Dealer's Hand: ${displayCards([dealerHand[0], '?'])}`;
+        }
+
+        function displayCards(hand) {
+            return hand.map(card => `<div class="card">${card.value}${card.suit}</div>`).join('');
         }
 
         function startPoker() {
-            let bet = 100;
-            if (pokerCoins < bet) {
-                document.getElementById('poker-result').innerText = "Not enough coins!";
-                return;
-            }
-            pokerCoins -= bet;
-            let outcome = Math.random();
-            if (outcome > 0.5) {
-                pokerCoins += bet * 2;
-                document.getElementById('poker-result').innerText = "You won!";
-            } else {
-                document.getElementById('poker-result').innerText = "You lost!";
-            }
-            document.getElementById('poker-coins').innerText = pokerCoins;
+            let deck = createDeck();
+            let playerHand = [deck.pop(), deck.pop()];
+            let communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+            let pokerTable = document.getElementById('poker-table');
+            pokerTable.innerHTML = `Your Hand: ${displayCards(playerHand)}<br> Community Cards: ${displayCards(communityCards)}`;
         }
     </script>
 </body>
