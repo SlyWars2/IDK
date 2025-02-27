@@ -17,14 +17,14 @@
     <div id="game-container">
         <div id="dealer" class="player dealer">Dealer: <span id="dealer-score">0</span></div>
         <div id="players"></div>
+        <h3>Bet Amount: $<span id="bet-amount">0</span></h3>
+        <input type="number" id="bet-input" placeholder="Enter bet amount" min="1">
+        <button onclick="placeBet()">Place Bet</button>
         <div class="buttons">
             <button onclick="startGame()">Start Game</button>
             <button onclick="hit()">Hit</button>
             <button onclick="stand()">Stand</button>
         </div>
-        <h3>Bet Amount: $<span id="bet-amount">0</span></h3>
-        <input type="number" id="bet-input" placeholder="Enter bet amount" min="1">
-        <button onclick="placeBet()">Place Bet</button>
         <h3>Leaderboard</h3>
         <ul id="leaderboard"></ul>
     </div>
@@ -36,24 +36,67 @@
             { name: "AI Player 2", score: 0, money: 1000, bet: 0, isAI: true }
         ];
         let dealer = { score: 0 };
-        
+        let deck = [];
+
+        function createDeck() {
+            let suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
+            let values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ suit, value });
+                }
+            }
+            deck = deck.sort(() => Math.random() - 0.5);
+        }
+
+        function drawCard() {
+            return deck.pop();
+        }
+
+        function calculateScore(hand) {
+            let score = 0;
+            let aces = 0;
+            for (let card of hand) {
+                if (["J", "Q", "K"].includes(card.value)) {
+                    score += 10;
+                } else if (card.value === "A") {
+                    aces += 1;
+                    score += 11;
+                } else {
+                    score += parseInt(card.value);
+                }
+            }
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces -= 1;
+            }
+            return score;
+        }
+
         function startGame() {
-            players.forEach(player => player.score = Math.floor(Math.random() * 21) + 1);
-            dealer.score = Math.floor(Math.random() * 21) + 1;
+            createDeck();
+            players.forEach(player => player.hand = [drawCard(), drawCard()]);
+            dealer.hand = [drawCard(), drawCard()];
             updateUI();
         }
-        
+
         function hit() {
-            players[0].score += Math.floor(Math.random() * 10) + 1;
-            if (players[0].score > 21) alert("Busted!");
+            players[0].hand.push(drawCard());
+            if (calculateScore(players[0].hand) > 21) {
+                alert("Busted!");
+            }
             updateUI();
         }
-        
+
         function stand() {
-            alert("You chose to stand.");
+            while (calculateScore(dealer.hand) < 17) {
+                dealer.hand.push(drawCard());
+            }
+            determineWinner();
             updateUI();
         }
-        
+
         function placeBet() {
             let betInput = document.getElementById("bet-input").value;
             let betAmount = parseInt(betInput);
@@ -66,18 +109,31 @@
                 alert("Invalid bet amount.");
             }
         }
-        
+
+        function determineWinner() {
+            let playerScore = calculateScore(players[0].hand);
+            let dealerScore = calculateScore(dealer.hand);
+            if (playerScore > 21 || (dealerScore <= 21 && dealerScore >= playerScore)) {
+                alert("Dealer Wins!");
+            } else {
+                alert("You Win!");
+                players[0].money += players[0].bet * 2;
+            }
+            players[0].bet = 0;
+        }
+
         function updateUI() {
-            document.getElementById("dealer-score").innerText = dealer.score;
+            document.getElementById("dealer-score").innerText = calculateScore(dealer.hand);
             let playersDiv = document.getElementById("players");
             playersDiv.innerHTML = "";
             players.forEach(player => {
                 let div = document.createElement("div");
                 div.className = "player";
-                div.innerText = `${player.name}: ${player.score} | Money: $${player.money} | Bet: $${player.bet}`;
+                div.innerText = `${player.name}: ${calculateScore(player.hand)} | Money: $${player.money} | Bet: $${player.bet}`;
                 playersDiv.appendChild(div);
             });
         }
     </script>
 </body>
 </html>
+
