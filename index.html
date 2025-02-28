@@ -69,7 +69,6 @@
             color: white;
             border: 1px solid black;
             cursor: pointer;
-            position: relative;
         }
         .chip-selection {
             margin-top: 20px;
@@ -92,11 +91,6 @@
         }
         .leaderboard div {
             padding: 5px;
-            transition: all 0.5s ease-in-out;
-        }
-        .overtake {
-            color: gold;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -121,6 +115,7 @@
     <p id="result"></p>
     <h2>Leaderboard</h2>
     <div class="leaderboard" id="leaderboard"></div>
+
     <script>
         let players = [{ id: 1, balance: 1000 }, { id: 2, balance: 1000 }, { id: 3, balance: 1000 }];
         let currentPlayerIndex = 0;
@@ -135,7 +130,6 @@
             players.forEach((player, index) => {
                 let div = document.createElement("div");
                 div.innerText = `Player ${player.id}: $${player.balance}`;
-                if (index === 0) div.classList.add("overtake");
                 leaderboard.appendChild(div);
             });
         }
@@ -160,8 +154,7 @@
             }
             player.balance -= currentChipValue;
             if (!bets[betType]) bets[betType] = {};
-            if (!bets[betType][player.id]) bets[betType][player.id] = {};
-            bets[betType][player.id] = bets[betType][player.id] || [];
+            if (!bets[betType][player.id]) bets[betType][player.id] = [];
             bets[betType][player.id].push(number || betType); // Store specific number for number bets
             updateLeaderboard();
         }
