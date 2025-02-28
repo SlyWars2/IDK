@@ -71,16 +71,6 @@
             cursor: pointer;
             position: relative;
         }
-        .chip {
-            width: 15px;
-            height: 15px;
-            background-color: yellow;
-            border-radius: 50%;
-            position: absolute;
-            top: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
         .chip-selection {
             margin-top: 20px;
         }
@@ -111,9 +101,9 @@
     </div>
     <div class="chip-selection">
         <p>Select Chip:</p>
-        <div class="chip-option" onclick="selectChip(10)" data-value="10">$10</div>
-        <div class="chip-option" onclick="selectChip(50)" data-value="50">$50</div>
-        <div class="chip-option" onclick="selectChip(100)" data-value="100">$100</div>
+        <div class="chip-option" onclick="selectChip(10)">$10</div>
+        <div class="chip-option" onclick="selectChip(50)">$50</div>
+        <div class="chip-option" onclick="selectChip(100)">$100</div>
     </div>
     <button onclick="spinWheel()">Spin</button>
     <p id="result"></p>
@@ -139,6 +129,17 @@
             bets[betType] += currentChipValue;
         }
 
+        function placeNumberBet(number) {
+            if (balance < currentChipValue) {
+                alert("Not enough balance!");
+                return;
+            }
+            balance -= currentChipValue;
+            document.getElementById("balance").innerText = balance;
+            if (!bets[number]) bets[number] = 0;
+            bets[number] += currentChipValue;
+        }
+
         function spinWheel() {
             let winningNumber = Math.floor(Math.random() * 37);
             let winningColor = winningNumber === 0 ? "green" : winningNumber % 2 === 0 ? "red" : "black";
@@ -150,6 +151,16 @@
             document.getElementById("result").innerText = `Winning number: ${winningNumber} (${winningColor}). You ${winnings > 0 ? "win" : "lose"}!`;
             bets = {};
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let board = document.getElementById("bettingBoard");
+            for (let i = 0; i <= 36; i++) {
+                let cell = document.createElement("div");
+                cell.innerText = i;
+                cell.onclick = function() { placeNumberBet(i); };
+                board.appendChild(cell);
+            }
+        });
     </script>
 </body>
 </html>
