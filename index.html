@@ -9,20 +9,24 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         .wheel-container {
             position: relative;
             width: 300px;
             height: 300px;
-            margin: 20px auto;
+            margin: 20px;
         }
         .wheel {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 10px solid black;
             position: absolute;
             transition: transform 4s ease-out;
-            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTutZ1owhHXUqlbv5NfFUhw7tye8RcadZikfQ&s');
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/5d/American_roulette_wheel.svg');
             background-size: cover;
         }
         .ball {
@@ -36,6 +40,12 @@
             transform: translate(-50%, -50%);
             transition: transform 4s ease-out;
         }
+        .betting-board {
+            width: 400px;
+            height: 200px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/0b/Roulette_table_layout.svg');
+            background-size: cover;
+        }
         .bet-options {
             margin-top: 20px;
         }
@@ -44,9 +54,12 @@
 <body>
     <h1>Roulette Game</h1>
     <p>Balance: $<span id="balance">1000</span></p>
-    <div class="wheel-container">
-        <div class="wheel" id="wheel"></div>
-        <div class="ball" id="ball"></div>
+    <div class="container">
+        <div class="wheel-container">
+            <div class="wheel" id="wheel"></div>
+            <div class="ball" id="ball"></div>
+        </div>
+        <div class="betting-board"></div>
     </div>
     <div class="bet-options">
         <label>Bet Amount: $</label>
@@ -79,9 +92,9 @@
 
             let wheel = document.getElementById("wheel");
             let ball = document.getElementById("ball");
-            let rotation = Math.floor(Math.random() * 3600) + 1440; // Random spin rotation
+            let rotation = Math.floor(Math.random() * 3600) + 1440;
             wheel.style.transform = `rotate(${rotation}deg)`;
-            let ballRotation = rotation - (Math.random() * 720 + 1440); // Ball moves independently
+            let ballRotation = rotation - (Math.random() * 720 + 1440);
             ball.style.transform = `translate(-50%, -50%) rotate(${ballRotation}deg)`;
 
             setTimeout(() => {
