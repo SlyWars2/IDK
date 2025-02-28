@@ -119,8 +119,6 @@
     <button onclick="nextPlayer()">Next Player</button>
     <button onclick="spinWheel()">Spin</button>
     <p id="result"></p>
-    <button onclick="placeBet('red')">Bet on Red</button>
-    <button onclick="placeBet('black')">Bet on Black</button>
     <h2>Leaderboard</h2>
     <div class="leaderboard" id="leaderboard"></div>
     <script>
@@ -150,7 +148,7 @@
             currentChipValue = value;
         }
 
-        function placeBet(betType) {
+        function placeBet(betType, number) {
             let player = players[currentPlayerIndex];
             if (player.balance < currentChipValue) {
                 alert("Not enough balance!");
@@ -158,25 +156,76 @@
             }
             player.balance -= currentChipValue;
             if (!bets[betType]) bets[betType] = {};
-            if (!bets[betType][player.id]) bets[betType][player.id] = 0;
-            bets[betType][player.id] += currentChipValue;
+            if (!bets[betType][player.id]) bets[betType][player.id] = {};
+            bets[betType][player.id] = bets[betType][player.id] || [];
+            bets[betType][player.id].push(number || betType); // Store specific number for number bets
             updateLeaderboard();
         }
 
         function spinWheel() {
-            let winningNumber = Math.floor(Math.random() * 37);
-            let winningColor = winningNumber === 0 ? "green" : winningNumber % 2 === 0 ? "red" : "black";
-            players.forEach(player => {
-                let winnings = 0;
-                if (bets[winningNumber] && bets[winningNumber][player.id]) winnings += bets[winningNumber][player.id] * 35;
-                if (bets[winningColor] && bets[winningColor][player.id]) winnings += bets[winningColor][player.id] * 2;
-                player.balance += winnings;
-            });
-            bets = {};
-            updateLeaderboard();
-            document.getElementById("result").innerText = `Winning number: ${winningNumber} (${winningColor}).`;
+            // Spin animation
+            let wheel = document.getElementById('wheel');
+            let ball = document.getElementById('ball');
+            let spinDuration = 4000;
+            let totalRotation = Math.random() * 3600 + 3600; // Random spin duration
+
+            // Apply the rotation transformation
+            wheel.style.transition = `transform ${spinDuration}ms ease-out`;
+            ball.style.transition = `transform ${spinDuration}ms ease-out`;
+
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            ball.style.transform = `translate(-50%, -50%) rotate(${totalRotation}deg)`;
+
+            // Randomly determine the winning number and color after spin
+            setTimeout(() => {
+                let winningNumber = Math.floor(Math.random() * 37); // 0-36
+                let winningColor = winningNumber === 0 ? "green" : winningNumber % 2 === 0 ? "red" : "black";
+                players.forEach(player => {
+                    let winnings = 0;
+                    // Calculate winnings based on bets
+                    if (bets[winningNumber] && bets[winningNumber][player.id]) {
+                        winnings += bets[winningNumber][player.id].length * 35; // 35x payout for numbers
+                    }
+                    if (bets[winningColor] && bets[winningColor][player.id]) {
+                        winnings += bets[winningColor][player.id].length * 2; // 2x payout for colors
+                    }
+                    player.balance += winnings;
+                });
+                bets = {};
+                updateLeaderboard();
+                document.getElementById("result").innerText = `Winning number: ${winningNumber} (${winningColor}).`;
+            }, spinDuration);
         }
 
+        // Dynamically create the betting board with numbers 0-36 and colors
+        function createBettingBoard() {
+            let bettingBoard = document.getElementById("bettingBoard");
+            bettingBoard.innerHTML = "";
+
+            // Create the numbers for the betting board
+            for (let i = 0; i <= 36; i++) {
+                let div = document.createElement("div");
+                div.innerText = i;
+                div.style.backgroundColor = (i === 0) ? "green" : (i % 2 === 0) ? "red" : "black";
+                div.onclick = () => placeBet('number', i);
+                bettingBoard.appendChild(div);
+            }
+
+            // Add color betting options at the bottom
+            let redButton = document.createElement("div");
+            redButton.innerText = "Red";
+            redButton.style.backgroundColor = "red";
+            redButton.onclick = () => placeBet('red');
+            bettingBoard.appendChild(redButton);
+
+            let blackButton = document.createElement("div");
+            blackButton.innerText = "Black";
+            blackButton.style.backgroundColor = "black";
+            blackButton.onclick = () => placeBet('black');
+            bettingBoard.appendChild(blackButton);
+        }
+
+        createBettingBoard();
         updateLeaderboard();
     </script>
 </body>
