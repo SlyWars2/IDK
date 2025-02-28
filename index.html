@@ -3,35 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cookie Clicker Clone</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Roulette Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 10px solid black;
+            background: conic-gradient(
+                red 0deg 18deg, black 18deg 36deg,
+                red 36deg 54deg, black 54deg 72deg,
+                red 72deg 90deg, black 90deg 108deg,
+                red 108deg 126deg, black 126deg 144deg,
+                red 144deg 162deg, black 162deg 180deg,
+                red 180deg 198deg, black 198deg 216deg,
+                red 216deg 234deg, black 234deg 252deg,
+                red 252deg 270deg, black 270deg 288deg,
+                red 288deg 306deg, black 306deg 324deg,
+                red 324deg 342deg, black 342deg 360deg
+            );
+            position: relative;
+            margin: 20px auto;
+        }
+        .ball {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .bet-options {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="game">
-            <h1>Cookie Clicker</h1>
-            <div id="cookie" onclick="clickCookie()">
-                <img src="cookie.png" alt="cookie" width="150" height="150">
-            </div>
-            <p id="cookieCountText">You have <span id="cookieCount">0</span> cookies.</p>
-
-            <div id="shop">
-                <div id="upgrade1">
-                    <button onclick="buyUpgrade(1)">Buy Auto-Clicker (Cost: <span id="upgradeCost1">10</span> cookies)</button>
-                    <p>Auto-clicker will click the cookie every second.</p>
-                </div>
-                <div id="upgrade2">
-                    <button onclick="buyUpgrade(2)">Buy Grandma (Cost: <span id="upgradeCost2">100</span> cookies)</button>
-                    <p>Grandma will generate 1 cookie every 5 seconds.</p>
-                </div>
-                <div id="upgrade3">
-                    <button onclick="buyUpgrade(3)">Buy Factory (Cost: <span id="upgradeCost3">500</span> cookies)</button>
-                    <p>Factory will generate 10 cookies every 10 seconds.</p>
-                </div>
-            </div>
-        </div>
+    <h1>Roulette Game</h1>
+    <div class="wheel" id="wheel">
+        <div class="ball" id="ball"></div>
     </div>
-
-    <script src="script.js"></script>
+    <div class="bet-options">
+        <label>Bet on: </label>
+        <select id="betType">
+            <option value="red">Red</option>
+            <option value="black">Black</option>
+            <option value="number">Number</option>
+        </select>
+        <input type="number" id="betNumber" placeholder="Number (0-36)" min="0" max="36">
+        <button onclick="spinWheel()">Spin</button>
+    </div>
+    <p id="result"></p>
+    <script>
+        function spinWheel() {
+            let winningNumber = Math.floor(Math.random() * 37);
+            let winningColor = winningNumber % 2 === 0 ? 'red' : 'black';
+            
+            let betType = document.getElementById("betType").value;
+            let betNumber = document.getElementById("betNumber").value;
+            
+            let resultMessage = `Winning number: ${winningNumber} (${winningColor})`;
+            
+            if (betType === "red" && winningColor === "red" ||
+                betType === "black" && winningColor === "black") {
+                resultMessage += " - You win!";
+            } else if (betType === "number" && parseInt(betNumber) === winningNumber) {
+                resultMessage += " - You hit the number! Big win!";
+            } else {
+                resultMessage += " - You lose!";
+            }
+            
+            document.getElementById("result").innerText = resultMessage;
+        }
+    </script>
 </body>
 </html>
