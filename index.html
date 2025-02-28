@@ -111,12 +111,14 @@
     </div>
     <div class="chip-selection">
         <p>Select Chip:</p>
-        <div class="chip-option" onclick="selectChip(10)">$10</div>
-        <div class="chip-option" onclick="selectChip(50)">$50</div>
-        <div class="chip-option" onclick="selectChip(100)">$100</div>
+        <div class="chip-option" onclick="selectChip(10)" data-value="10">$10</div>
+        <div class="chip-option" onclick="selectChip(50)" data-value="50">$50</div>
+        <div class="chip-option" onclick="selectChip(100)" data-value="100">$100</div>
     </div>
     <button onclick="spinWheel()">Spin</button>
     <p id="result"></p>
+    <button onclick="placeBet('red')">Bet on Red</button>
+    <button onclick="placeBet('black')">Bet on Black</button>
     <script>
         let balance = 1000;
         let currentChipValue = 10;
@@ -126,52 +128,28 @@
             currentChipValue = value;
         }
 
-        function generateBettingBoard() {
-            let board = document.getElementById("bettingBoard");
-            let numbers = Array.from({ length: 37 }, (_, i) => i);
-            numbers.forEach(num => {
-                let cell = document.createElement("div");
-                cell.innerText = num;
-                cell.classList.add(num === 0 ? "green" : num % 2 === 0 ? "red" : "black");
-                cell.onclick = () => placeBet(num, cell);
-                board.appendChild(cell);
-            });
-        }
-
-        function placeBet(number, cell) {
+        function placeBet(betType) {
             if (balance < currentChipValue) {
                 alert("Not enough balance!");
                 return;
             }
             balance -= currentChipValue;
             document.getElementById("balance").innerText = balance;
-            if (!bets[number]) bets[number] = 0;
-            bets[number] += currentChipValue;
-            let chip = document.createElement("div");
-            chip.classList.add("chip");
-            cell.appendChild(chip);
+            if (!bets[betType]) bets[betType] = 0;
+            bets[betType] += currentChipValue;
         }
 
         function spinWheel() {
             let winningNumber = Math.floor(Math.random() * 37);
-            let wheel = document.getElementById("wheel");
-            let ball = document.getElementById("ball");
-            let rotation = Math.floor(Math.random() * 3600) + 1440;
-            wheel.style.transform = `rotate(${rotation}deg)`;
-            let ballRotation = rotation - (Math.random() * 720 + 1440);
-            ball.style.transform = `translate(-50%, -50%) rotate(${ballRotation}deg)`;
-            
-            setTimeout(() => {
-                let winnings = bets[winningNumber] ? bets[winningNumber] * 35 : 0;
-                balance += winnings;
-                document.getElementById("balance").innerText = balance;
-                document.getElementById("result").innerText = `Winning number: ${winningNumber}. You ${winnings > 0 ? "win" : "lose"}!`;
-                bets = {};
-                document.querySelectorAll(".chip").forEach(chip => chip.remove());
-            }, 4000);
+            let winningColor = winningNumber === 0 ? "green" : winningNumber % 2 === 0 ? "red" : "black";
+            let winnings = 0;
+            if (bets[winningNumber]) winnings += bets[winningNumber] * 35;
+            if (bets[winningColor]) winnings += bets[winningColor] * 2;
+            balance += winnings;
+            document.getElementById("balance").innerText = balance;
+            document.getElementById("result").innerText = `Winning number: ${winningNumber} (${winningColor}). You ${winnings > 0 ? "win" : "lose"}!`;
+            bets = {};
         }
-
-        generateBettingBoard();
     </script>
 </body>
 </html>
