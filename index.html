@@ -87,11 +87,22 @@
             cursor: pointer;
             border: 1px solid black;
         }
+        .leaderboard {
+            margin-top: 20px;
+        }
+        .leaderboard div {
+            padding: 5px;
+            transition: all 0.5s ease-in-out;
+        }
+        .overtake {
+            color: gold;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <h1>Roulette Game</h1>
-    <p>Balance: $<span id="balance">1000</span></p>
+    <p>Current Player: <span id="currentPlayer">1</span></p>
     <div class="container">
         <div class="wheel-container">
             <div class="wheel" id="wheel"></div>
@@ -105,62 +116,68 @@
         <div class="chip-option" onclick="selectChip(50)">$50</div>
         <div class="chip-option" onclick="selectChip(100)">$100</div>
     </div>
+    <button onclick="nextPlayer()">Next Player</button>
     <button onclick="spinWheel()">Spin</button>
     <p id="result"></p>
     <button onclick="placeBet('red')">Bet on Red</button>
     <button onclick="placeBet('black')">Bet on Black</button>
+    <h2>Leaderboard</h2>
+    <div class="leaderboard" id="leaderboard"></div>
     <script>
-        let balance = 1000;
+        let players = [{ id: 1, balance: 1000 }, { id: 2, balance: 1000 }, { id: 3, balance: 1000 }];
+        let currentPlayerIndex = 0;
         let currentChipValue = 10;
         let bets = {};
+
+        function updateLeaderboard() {
+            let leaderboard = document.getElementById("leaderboard");
+            players.sort((a, b) => b.balance - a.balance);
+            leaderboard.innerHTML = "";
+            players.forEach((player, index) => {
+                let div = document.createElement("div");
+                div.innerText = `Player ${player.id}: $${player.balance}`;
+                if (index === 0) div.classList.add("overtake");
+                leaderboard.appendChild(div);
+            });
+        }
+
+        function nextPlayer() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            document.getElementById("currentPlayer").innerText = players[currentPlayerIndex].id;
+        }
 
         function selectChip(value) {
             currentChipValue = value;
         }
 
         function placeBet(betType) {
-            if (balance < currentChipValue) {
+            let player = players[currentPlayerIndex];
+            if (player.balance < currentChipValue) {
                 alert("Not enough balance!");
                 return;
             }
-            balance -= currentChipValue;
-            document.getElementById("balance").innerText = balance;
-            if (!bets[betType]) bets[betType] = 0;
-            bets[betType] += currentChipValue;
-        }
-
-        function placeNumberBet(number) {
-            if (balance < currentChipValue) {
-                alert("Not enough balance!");
-                return;
-            }
-            balance -= currentChipValue;
-            document.getElementById("balance").innerText = balance;
-            if (!bets[number]) bets[number] = 0;
-            bets[number] += currentChipValue;
+            player.balance -= currentChipValue;
+            if (!bets[betType]) bets[betType] = {};
+            if (!bets[betType][player.id]) bets[betType][player.id] = 0;
+            bets[betType][player.id] += currentChipValue;
+            updateLeaderboard();
         }
 
         function spinWheel() {
             let winningNumber = Math.floor(Math.random() * 37);
             let winningColor = winningNumber === 0 ? "green" : winningNumber % 2 === 0 ? "red" : "black";
-            let winnings = 0;
-            if (bets[winningNumber]) winnings += bets[winningNumber] * 35;
-            if (bets[winningColor]) winnings += bets[winningColor] * 2;
-            balance += winnings;
-            document.getElementById("balance").innerText = balance;
-            document.getElementById("result").innerText = `Winning number: ${winningNumber} (${winningColor}). You ${winnings > 0 ? "win" : "lose"}!`;
+            players.forEach(player => {
+                let winnings = 0;
+                if (bets[winningNumber] && bets[winningNumber][player.id]) winnings += bets[winningNumber][player.id] * 35;
+                if (bets[winningColor] && bets[winningColor][player.id]) winnings += bets[winningColor][player.id] * 2;
+                player.balance += winnings;
+            });
             bets = {};
+            updateLeaderboard();
+            document.getElementById("result").innerText = `Winning number: ${winningNumber} (${winningColor}).`;
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            let board = document.getElementById("bettingBoard");
-            for (let i = 0; i <= 36; i++) {
-                let cell = document.createElement("div");
-                cell.innerText = i;
-                cell.onclick = function() { placeNumberBet(i); };
-                board.appendChild(cell);
-            }
-        });
+        updateLeaderboard();
     </script>
 </body>
 </html>
