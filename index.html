@@ -9,9 +9,15 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
-        .wheel {
+        .wheel-container {
+            position: relative;
             width: 300px;
             height: 300px;
+            margin: 20px auto;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             border: 10px solid black;
             background: conic-gradient(
@@ -26,8 +32,8 @@
                 red 288deg 306deg, black 306deg 324deg,
                 red 324deg 342deg, black 342deg 360deg
             );
-            position: relative;
-            margin: 20px auto;
+            position: absolute;
+            transition: transform 4s ease-out;
         }
         .ball {
             width: 20px;
@@ -38,6 +44,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            transition: transform 4s ease-out;
         }
         .bet-options {
             margin-top: 20px;
@@ -46,10 +53,14 @@
 </head>
 <body>
     <h1>Roulette Game</h1>
-    <div class="wheel" id="wheel">
+    <p>Balance: $<span id="balance">1000</span></p>
+    <div class="wheel-container">
+        <div class="wheel" id="wheel"></div>
         <div class="ball" id="ball"></div>
     </div>
     <div class="bet-options">
+        <label>Bet Amount: $</label>
+        <input type="number" id="betAmount" value="10" min="1">
         <label>Bet on: </label>
         <select id="betType">
             <option value="red">Red</option>
@@ -61,25 +72,47 @@
     </div>
     <p id="result"></p>
     <script>
+        let balance = 1000;
+
         function spinWheel() {
+            let betAmount = parseInt(document.getElementById("betAmount").value);
+            if (betAmount > balance || betAmount <= 0) {
+                alert("Invalid bet amount!");
+                return;
+            }
+
             let winningNumber = Math.floor(Math.random() * 37);
-            let winningColor = winningNumber % 2 === 0 ? 'red' : 'black';
-            
+            let winningColor = winningNumber === 0 ? 'green' : (winningNumber % 2 === 0 ? 'red' : 'black');
+
             let betType = document.getElementById("betType").value;
             let betNumber = document.getElementById("betNumber").value;
-            
-            let resultMessage = `Winning number: ${winningNumber} (${winningColor})`;
-            
-            if (betType === "red" && winningColor === "red" ||
-                betType === "black" && winningColor === "black") {
-                resultMessage += " - You win!";
-            } else if (betType === "number" && parseInt(betNumber) === winningNumber) {
-                resultMessage += " - You hit the number! Big win!";
-            } else {
-                resultMessage += " - You lose!";
-            }
-            
-            document.getElementById("result").innerText = resultMessage;
+
+            let wheel = document.getElementById("wheel");
+            let ball = document.getElementById("ball");
+            let rotation = Math.floor(Math.random() * 3600) + 1440; // Random spin rotation
+            wheel.style.transform = `rotate(${rotation}deg)`;
+            ball.style.transform = `rotate(${rotation - 1440}deg)`;
+
+            setTimeout(() => {
+                let resultMessage = `Winning number: ${winningNumber} (${winningColor})`;
+                let winnings = 0;
+
+                if ((betType === "red" && winningColor === "red") ||
+                    (betType === "black" && winningColor === "black")) {
+                    winnings = betAmount * 2;
+                    resultMessage += " - You win!";
+                } else if (betType === "number" && parseInt(betNumber) === winningNumber) {
+                    winnings = betAmount * 35;
+                    resultMessage += " - You hit the number! Big win!";
+                } else {
+                    winnings = -betAmount;
+                    resultMessage += " - You lose!";
+                }
+
+                balance += winnings;
+                document.getElementById("balance").innerText = balance;
+                document.getElementById("result").innerText = resultMessage;
+            }, 4000);
         }
     </script>
 </body>
